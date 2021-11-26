@@ -21,9 +21,20 @@ clean_db = clean_db.reset_index(drop=True)
 print(len(clean_db))
 clean_db["Displacement"] = clean_db["Displacement"].fillna(value=0)
 clean_db["Speed"] = clean_db["Speed"].fillna(value=0)
-print(len(clean_db))
+print(clean_db["Basic type"].value_counts())
+# plt.hist(clean_db["Basic type"], bins=112)
+# plt.show()
 
-print((clean_db[clean_db["Speed"] == 0]))
+# dataset = pd.concat([clean_db["Name of vessel"], clean_db["Flag"], clean_db["Basic type"], clean_db["Date of build"],
+#                      clean_db["Country of build"], clean_db["Gross tonnage"], clean_db["Tonnage"],
+#                      clean_db["Deadweight"], clean_db["Displacement"], clean_db["Length overall (extreme)"],
+#                      clean_db["Breadth"], clean_db["Depth"], clean_db["Draught"], clean_db["Speed"],
+#                      clean_db["Type of power plant"], clean_db["Main Engine"],
+#                      clean_db["The number and power of propulsion motors"],
+#                      clean_db["Number and power of generators"], clean_db["Number and capacity of cargo holds"],
+#                      clean_db["Refrigerated cargo spaces"], clean_db["Cargo tanks"],
+#                      clean_db["Number and type of containers"], clean_db["Number o bulkheads"], clean_db[""]
+
 
 # clean_db["Displacement, t"] = clean_db["Displacement"].map(lambda element: filter(str.isdigit, element) if not None else 0)
 # plt.hist(clean_db["Displacement"], bins=100)
