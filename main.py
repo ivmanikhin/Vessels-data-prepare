@@ -5,8 +5,8 @@ import xlwt
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", None)
-pd.set_option("display.max_rows", None)
-# database = pd.read_feather("data/data (1)")
+pd.set_option("display.max_rows", 500)
+
 # for i in range(2, 11):
 #     database = database.append(pd.read_feather(f"data/data ({i})"), ignore_index=True)
 # # print(database.shape)
@@ -58,27 +58,44 @@ pd.set_option("display.max_rows", None)
 # # plt.hist(clean_db["Displacement"], bins=100)
 # # plt.show()
 # # clean_db["Index"] = clean_db["index"].map(lambda element: int(element))
-database = pd.read_feather("data/clean_db_30-11-2021")
+
 # print(database["Basic type"].value_counts())
 
+# database = pd.read_csv("data/database_1000000-1030000.csv")
+# database = database.append(pd.read_csv("data/database_289000-590000.csv"), ignore_index=True)
+database = pd.read_csv("data/clean_db_01-12-2021.csv")
+database["IMO No"] = database["IMO No"].astype(str).str.extract("(\d+)")
+print(database.tail())
 
 database["Gross tonnage"] = database["Gross tonnage"].str.extract("(\d+)")
 database["Tonnage"] = database["Tonnage"].str.extract("(\d+)")
-database["Deadweight"] = database["Deadweight"].str.extract("(\d+)")
-database["Displacement"] = database["Displacement"].str.extract("(\d+)")
-database["Length overall (extreme)"] = database["Length overall (extreme)"].str[:-3]
-database["Moulded lenght"] = database["Moulded lenght"].str[:-3]
-database["Rule length"] = database["Rule length"].str[:-3]
-database["Breadth"] = database["Breadth"].str[:-3]
-database["Depth"] = database["Depth"].str[:-3]
-database["Draught"] = database["Draught"].str[:-3]
-database["Water ballast"] = database["Water ballast"].str.extract("(\d+)")
-database["Main Engine"] = database["Main Engine"].str.extract("power of ME: ([\d* ]+\*\d+) Mark")
+database["Deadweight"] = database["Deadweight"].str.extract("(\d+\.\d+|\d+)")
+database["Displacement"] = database["Displacement"].str.extract("(\d+\.\d+|\d+)")
+database["Length overall (extreme)"] = database["Length overall (extreme)"].str.extract("(\d+\.\d+|\d+)")
+database["Moulded lenght"] = database["Moulded lenght"].str.extract("(\d+\.\d+|\d+)")
+database["Rule length"] = database["Rule length"].str.extract("(\d+\.\d+|\d+)")
+database["Breadth"] = database["Breadth"].str.extract("(\d+\.\d+|\d+)")
+database["Depth"] = database["Depth"].str.extract("(\d+\.\d+|\d+)")
+database["Draught"] = database["Draught"].str.extract("(\d+\.\d+|\d+)")
+database["Water ballast"] = database["Water ballast"].str.extract("(\d+\.\d+|\d+)")
+database["Main Engine"] = database["Main Engine"].str.extract("power of ME: ([\d* ]+) Mark").fillna(value=0).astype(str)
 database["Date of build"] = database["Date of build"].str[-4:]
 database["Arc-Ice class"] = database["RS Class notation"].str.extract("(Ice\d|Arc\d)")
+database["Number and power of generators"] = database["Number and power of generators"].str.replace("\* ", "*").str.replace(" ", "+").fillna(value=0).astype(str)
+database["Total engine power"] = database["Main Engine"].map(eval)
+database["Total electric power"] = database["Number and power of generators"].map(eval)
+database = database.replace("None", "0")
+print(database)
 
+dataset = pd.concat([database["Name of vessel"], database["Arc-Ice class"], database["Basic type"], database["Date of build"].fillna(value=0).astype(int),
+                     database["Gross tonnage"].fillna(value=0).astype(int), database["Tonnage"].fillna(value=0).astype(int),
+                     database["Deadweight"].fillna(value=0).astype(float), database["Displacement"].fillna(value=0).astype(int), database["Length overall (extreme)"].fillna(value=0).astype(float),
+                     database["Breadth"].fillna(value=0).astype(float), database["Depth"].fillna(value=0).astype(float), database["Draught"].fillna(value=0).astype(float), database["Speed"].fillna(value=0).astype(float),
+                     database["Total electric power"].fillna(value=0).astype(int),
+                     database["Total engine power"].fillna(value=0).astype(int), database["FO bunkers"].fillna(value=0).astype(float),
+                     database["Number o bulkheads"].fillna(value=0).astype(float), database["Equipment Number"].fillna(value=0).astype(float)], axis=1)
+print(dataset)
 
-
-
-cargos = database[database["Basic type"] == "General cargo"]
-print(cargos["Arc-Ice class"])
+#
+# cargos = database[database["Basic type"] == "General cargo"]
+# print(cargos["Arc-Ice class"])
